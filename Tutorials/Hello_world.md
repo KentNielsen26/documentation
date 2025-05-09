@@ -233,8 +233,8 @@ out = (x < 10).if_else(t, f)
 ```
 Running the program will give the output ```12``` as expected, and changing ```x=sint(12)``` to compute the other branch give the output ```36```.
 
-# Point inside circle
-Let us finish up with writing a simple program, where party ```0``` provides a circle and party ```1``` provides a series of point and both parties learn the number of points within the circle.
+# Number of points inside a circle
+Let us use what we have learn to write a simple program, where party ```0``` provides a circle and party ```1``` provides a series of point and both parties learn the number of points within the circle.
 
 Given the circle center is as $(x_0, y_0)$ with radius $r$ we can check the point $(x,y)$ using the formula 
 ```math
@@ -269,5 +269,53 @@ def _(i):
 num_inside = count.reveal()
 
 print_ln('Total number of point in circle: %s', num_inside)
-
 ```
+
+# Benchmarking using MP-SPDZ
+The core of MP-SPDZ is to benchmark MPC protocols in different security settings.
+Using our example of counting the number of points inside a circle we can benchmark our protocols.
+As we have been running using MASCOT so far let us see how it performs.
+On my machine the following are the results
+
+|       | Time (Offline)  | Communication|
+| - | - |- |
+|Mascot | 1.05s (0.94) | 59.5MB|
+
+We can then test the same program but using a different protocol.
+MASCOT was based on OT to perform the computation. 
+We now benchmark the same program using the HighGear protocol which is based on somewhat homomorphic encryption. 
+
+|       | Time (Offline)  | Communication per party|
+| - | - |- |
+|Mascot | 1.05s (0.94s) | 59.5MB|
+|HighGear| 27.9s (27.9s) | 414.3 MB|
+
+The results are as expected since homomophic encryption is slower than the OT based approach.
+The benchmarks can be better suited the specific program by changing the batch-size of the preprocessing by using ``` --batch-size ``` when running the program.
+In our case it changes little regarding the performance of HighGear
+
+Both of the protocols benchmarked have the security model of Malicious, dishonest majority.
+A setting could be where we are ensure that the majority is honest, hence use a protocol in this setting.
+We benchmark the malicious, honest majority version of Shamir
+|       | Time (Offline)  | Communication per party|
+| - | - |- |
+|Mascot | 1.05s (0.94s) | 59.5MB|
+|HighGear| 27.9s (27.9s) | 414.3 MB|
+|Shamir(Malicious)| 0.091s (0.081s) | 2.44 MB
+
+Furthermore we can relax the security even more by looking at the semi-honest version of Shamir.
+In this setting every party must follow the protocol, and can only use the knowledge gained during the execution to try to extract information.
+This could be in a case where every party is trusted, but someone might be spying on the communication.
+The result become
+
+|       | Time (Offline)  | Communication per party|
+| - | - |- |
+|Mascot | 1.05s (0.94s) | 59.5MB|
+|HighGear| 27.9s (27.9s) | 414.3 MB|
+|Shamir(Malicious)| 0.091s (0.081s) | 2.44 MB
+|Shamir(Semi-Honest) | 0.015s (0.008s) | 0.33 MB
+
+From the few benchmarks conducted the power of MP-SPDZ becomes clear.
+The program can be benchmark using different protocol to see which performs the best.
+Furthermore the program can be optimized to both decrease time consumption and communication very efficiently since MP-SPDZ tracks this information.
+To gain a better overview of what the time and communication is spent on the execution of the protocol can be done in verbose mode ```-v``` which report time and communication of each part of the execution.
