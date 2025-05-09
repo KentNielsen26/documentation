@@ -236,14 +236,14 @@ Running the program will give the output ```12``` as expected, and changing ```x
 # Point inside circle
 Let us finish up with writing a simple program, where party ```0``` provides a circle and party ```1``` provides a series of point and both parties learn the number of points within the circle.
 
-Given the circle center is as $(x_0, y_0)$ with radius $r$ we can check the point $(x,y)$ using the formula
-$$ 
+Given the circle center is as $(x_0, y_0)$ with radius $r$ we can check the point $(x,y)$ using the formula 
+```math
 \sqrt{(x-x_0)^2 +(y-y_0)^2} < r
-$$
+```
 Computing square-roots does not result in integers so by rewriting we get
-$$
+```math
 (x-x_0)^2 + (y-y_0)^2 -r^2 < 0
-$$
+```
 which can be computed by integers only.
 
 The code could looks as follows
